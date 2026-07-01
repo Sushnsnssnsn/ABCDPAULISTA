@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABCD Paulista | Assumir Fac/Org</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="loader" id="loader">
+    <div class="loader-box">
+      <span>ABCD</span>
+      <small>carregando organizações...</small>
+    </div>
+  </div>
+
+  <header class="header">
+    <a class="logo" href="#inicio"><span>ABCD</span> Paulista</a>
+    <nav class="nav" id="nav">
+      <a href="#inicio">Início</a>
+      <a href="#faccoes">Facções</a>
+      <a href="#orgs">Orgs</a>
+      <a href="painel-staff.html" class="staff-link">PAINEL-STAFF</a>
+      <a href="login.html" class="login-link">Login</a>
+      <button class="logout-btn" id="logoutBtn" type="button">Sair</button>
+      <a href="assumir.html" class="nav-btn">Assumir</a>
+    </nav>
+    <button class="menu" id="menu" aria-label="Abrir menu">☰</button>
+  </header>
+
+  <main>
+    <section class="hero section" id="inicio">
+      <div class="hero-content reveal">
+        <p class="tag">Cidade ABCD Paulista</p>
+        <h1>Assumir <span>FAC/ORG</span> pela própria cidade.</h1>
+        <p class="desc">Escolha a categoria, veja as vagas disponíveis e envie a solicitação diretamente pelo site. Visual escuro, moderno e com transições suaves.</p>
+        <div class="actions">
+          <a href="#faccoes" class="btn primary">Ver facções</a>
+          <a href="#orgs" class="btn ghost">Ver orgs</a>
+          <a href="assumir.html" class="btn ghost">Abrir página de assumir</a>
+        </div>
+      </div>
+      <div class="hero-card reveal delay">
+        <div class="pulse"></div>
+        <h3>Status Geral</h3>
+        <div class="stat"><span>FAC Armas</span><strong>2 livres</strong></div>
+        <div class="stat"><span>FAC Munições</span><strong>4 livres</strong></div>
+        <div class="stat"><span>Org Públicas</span><strong>ativas</strong></div>
+      </div>
+    </section>
+
+    <section class="section" id="faccoes">
+      <div class="section-title reveal">
+        <p class="tag">Facções disponíveis</p>
+        <h2>Escolha o tipo para assumir</h2>
+      </div>
+
+      <div class="grid two">
+        <article class="category reveal">
+          <div class="category-head">
+            <h3>FAC: ARMAS</h3>
+            <span class="badge">Armas</span>
+          </div>
+          <h4>Livres</h4>
+          <div class="items">
+            <div class="item free"><span></span> GUAIANASES</div>
+            <div class="item free"><span></span> TIRADENTES</div>
+          </div>
+          <h4>Ocupadas</h4>
+          <div class="items compact">
+            <div class="item busy"><span></span> CALUX</div>
+            <div class="item busy"><span></span> SÃO MATHEUS</div>
+            <div class="item busy"><span></span> SÃO MIGUEL</div>
+            <div class="item busy"><span></span> ELDORADO</div>
+            <div class="item busy"><span></span> ZAIRA</div>
+            <div class="item busy"><span></span> PANTANAL</div>
+          </div>
+          <a class="btn primary full" href="assumir.html?tipo=armas">QUERO ASSUMIR FAC ARMA</a>
+        </article>
+
+        <article class="category reveal delay">
+          <div class="category-head">
+            <h3>FAC: MUNIÇÕES</h3>
+            <span class="badge">Munições</span>
+          </div>
+          <h4>Livres</h4>
+          <div class="items">
+            <div class="item free"><span></span> SILVINA</div>
+            <div class="item free"><span></span> GRAJAU</div>
+            <div class="item free"><span></span> ITAQUERA</div>
+            <div class="item free"><span></span> HELIÓPOLIS</div>
+          </div>
+          <h4>Ocupadas</h4>
+          <div class="items compact">
+            <div class="item busy"><span></span> BRASILÂNDIA</div>
+            <div class="item busy"><span></span> JARDIM ÂNGELA</div>
+            <div class="item busy"><span></span> CAPÃO REDONDO</div>
+            <div class="item busy"><span></span> PEDREIRA</div>
+          </div>
+          <a class="btn primary full" href="assumir.html?tipo=municoes">QUERO ASSUMIR FAC MUNIÇÃO</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="orgs">
+      <div class="section-title reveal">
+        <p class="tag">Organizações principais</p>
+        <h2>Orgs públicas da cidade</h2>
+      </div>
+      <div class="org-grid reveal">
+        <div class="org-card">PMESP</div>
+        <div class="org-card">PCESP</div>
+        <div class="org-card">Polícia Federal</div>
+        <div class="org-card">Exército Brasileiro</div>
+        <div class="org-card">Polícia Rodoviária Federal</div>
+        <div class="org-card">Receita Federal</div>
+        <div class="org-card">CET / Trânsito</div>
+        <div class="org-card">GCM ABCD Paulista</div>
+        <div class="org-card">Corpo de Bombeiros PMESP</div>
+      </div>
+      <div class="center reveal">
+        <a class="btn ghost" href="assumir.html?tipo=orgs">QUERO ASSUMIR UMA ORG</a>
+      </div>
+    </section>
+
+    <section class="section" id="pmesp">
+      <div class="section-title reveal">
+        <p class="tag">Divisões PMESP</p>
+        <h2>Unidades e especializadas</h2>
+      </div>
+      <div class="org-grid reveal">
+        <div class="org-card">CPChq</div>
+        <div class="org-card">1º BPChq ROTA</div>
+        <div class="org-card">2º BPChq Anchieta</div>
+        <div class="org-card">3º BPChq Humaitá</div>
+        <div class="org-card">4º BPChq Operações Especiais</div>
+        <div class="org-card">CavPM / Regimento 9 de Julho</div>
+        <div class="org-card">COE</div>
+        <div class="org-card">GATE</div>
+        <div class="org-card">BAEP</div>
+        <div class="org-card">Força Tática</div>
+        <div class="org-card">ROCAM</div>
+        <div class="org-card">CPTran / Trânsito</div>
+        <div class="org-card">Polícia Rodoviária</div>
+        <div class="org-card">Polícia Ambiental</div>
+        <div class="org-card">Corpo de Bombeiros</div>
+      </div>
+    </section>
+
+
+
+    <section class="section" id="pcesp">
+      <div class="section-title reveal">
+        <p class="tag">Divisões PCESP</p>
+        <h2>Polícia Civil do Estado de São Paulo</h2>
+      </div>
+      <div class="org-grid reveal">
+        <div class="org-card">DEIC</div>
+        <div class="org-card">DHPP</div>
+        <div class="org-card">DENARC</div>
+        <div class="org-card">DECAP</div>
+        <div class="org-card">DEMACRO</div>
+        <div class="org-card">DIG / DISE</div>
+        <div class="org-card">Delegacia Seccional</div>
+        <div class="org-card">Delegacia de Homicídios</div>
+        <div class="org-card">Delegacia da Mulher</div>
+      </div>
+    </section>
+
+    <section class="section" id="pf-gcm">
+      <div class="section-title reveal">
+        <p class="tag">PF e GCM</p>
+        <h2>Divisões federais e municipais</h2>
+      </div>
+      <div class="org-grid reveal">
+        <div class="org-card">PF — DPF</div>
+        <div class="org-card">PF — COT</div>
+        <div class="org-card">PF — GPI</div>
+        <div class="org-card">PF — Polícia de Imigração</div>
+        <div class="org-card">PF — Repressão a Drogas</div>
+        <div class="org-card">PF — Crimes Cibernéticos</div>
+        <div class="org-card">GCM — ROMU</div>
+        <div class="org-card">GCM — Ronda Escolar</div>
+        <div class="org-card">GCM — Ambiental</div>
+        <div class="org-card">GCM — Patrulhamento Preventivo</div>
+        <div class="org-card">GCM — Trânsito</div>
+        <div class="org-card">GCM — Canil</div>
+      </div>
+    </section>
+
+    <section class="section rules" id="regras">
+      <div class="section-title reveal">
+        <p class="tag">Regras</p>
+        <h2>Antes de assumir</h2>
+      </div>
+      <div class="rules-box reveal">
+        <p>Para assumir uma facção ou organização, o responsável deve enviar solicitação pelo site, informar nome, ID, Discord e a fac/org desejada.</p>
+        <ul>
+          <li>Para assumir qualquer FAC/ORG, o grupo precisa ter no mínimo 15 pessoas.</li>
+          <li>O líder deve manter atividade na cidade.</li>
+          <li>Administração pode remover liderança por inatividade.</li>
+          <li>Preencha os dados corretamente para evitar recusa.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>ABCD Paulista © 2026 — Painel de FAC/ORG</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
