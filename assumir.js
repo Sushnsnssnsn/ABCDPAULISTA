@@ -90,6 +90,11 @@ form.addEventListener('submit', async (e) => {
     formMsg.style.color = '#ff6969';
     return;
   }
+  if (!orgSelect.value) {
+  formMsg.textContent = 'Selecione uma FAC/ORG antes de enviar.';
+  formMsg.style.color = '#ff4d4d';
+  return;
+}
   formMsg.textContent = 'Enviando...'; formMsg.style.color = '#fff';
   try {
     await api('/api/formularios', {
