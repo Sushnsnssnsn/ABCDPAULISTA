@@ -280,3 +280,14 @@ document.getElementById('criarForm').addEventListener('submit', async e => {
 criarDivisoesBox.style.display = 'none';
 carregarPainel();
 setInterval(carregarPainel, 10000);
+window.apagarFormulario = async function(id){
+  alert("Clicou para apagar: " + id);
+
+  if (!confirm("Tem certeza que deseja apagar este formulário?")) return;
+
+  await api(`/api/formularios/${id}`, {
+    method: "DELETE"
+  });
+
+  await carregarPainel();
+};
