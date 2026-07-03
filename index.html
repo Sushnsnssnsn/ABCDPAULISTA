@@ -53,142 +53,33 @@
       </div>
     </section>
 
-    <section class="section" id="faccoes">
+    <section class="section" id="categorias-inicio">
       <div class="section-title reveal">
-        <p class="tag">Facções disponíveis</p>
-        <h2>Escolha o tipo para assumir</h2>
+        <p class="tag">Escolha uma área</p>
+        <h2>Categorias principais</h2>
       </div>
 
-      <div class="grid two">
-        <article class="category reveal">
-          <div class="category-head">
-            <h3>FAC: ARMAS</h3>
-            <span class="badge">Armas</span>
-          </div>
-          <h4>Livres</h4>
-          <div class="items">
-            <div class="item free"><span></span> GUAIANASES</div>
-            <div class="item free"><span></span> TIRADENTES</div>
-          </div>
-          <h4>Ocupadas</h4>
-          <div class="items compact">
-            <div class="item busy"><span></span> CALUX</div>
-            <div class="item busy"><span></span> SÃO MATHEUS</div>
-            <div class="item busy"><span></span> SÃO MIGUEL</div>
-            <div class="item busy"><span></span> ELDORADO</div>
-            <div class="item busy"><span></span> ZAIRA</div>
-            <div class="item busy"><span></span> PANTANAL</div>
-          </div>
-          <a class="btn primary full" href="assumir.html?tipo=armas">QUERO ASSUMIR FAC ARMA</a>
-        </article>
+      <div class="home-category-grid reveal" id="homeCategoryGrid">
+        <a class="home-table-card" href="assumir.html?tipo=orgs">
+          <span class="badge">ORG</span>
+          <h3>ORG</h3>
+          <p>Ver órgãos públicos e escolher o tipo.</p>
+          <strong id="countOrgs">Carregando...</strong>
+        </a>
 
-        <article class="category reveal delay">
-          <div class="category-head">
-            <h3>FAC: MUNIÇÕES</h3>
-            <span class="badge">Munições</span>
-          </div>
-          <h4>Livres</h4>
-          <div class="items">
-            <div class="item free"><span></span> SILVINA</div>
-            <div class="item free"><span></span> GRAJAU</div>
-            <div class="item free"><span></span> ITAQUERA</div>
-            <div class="item free"><span></span> HELIÓPOLIS</div>
-          </div>
-          <h4>Ocupadas</h4>
-          <div class="items compact">
-            <div class="item busy"><span></span> BRASILÂNDIA</div>
-            <div class="item busy"><span></span> JARDIM ÂNGELA</div>
-            <div class="item busy"><span></span> CAPÃO REDONDO</div>
-            <div class="item busy"><span></span> PEDREIRA</div>
-          </div>
-          <a class="btn primary full" href="assumir.html?tipo=municoes">QUERO ASSUMIR FAC MUNIÇÃO</a>
-        </article>
-      </div>
-    </section>
+        <a class="home-table-card" href="assumir.html?tipo=armas">
+          <span class="badge">FAC</span>
+          <h3>FAC DE ARMA</h3>
+          <p>Ver facções de armas disponíveis.</p>
+          <strong id="countArmas">Carregando...</strong>
+        </a>
 
-    <section class="section" id="orgs">
-      <div class="section-title reveal">
-        <p class="tag">Organizações principais</p>
-        <h2>Orgs públicas da cidade</h2>
-      </div>
-      <div class="org-grid reveal org-click-grid">
-        <a class="org-card org-link-card" href="orgs.html?org=PMESP">PMESP</a>
-        <a class="org-card org-link-card" href="orgs.html?org=PCESP">PCESP</a>
-        <a class="org-card org-link-card" href="orgs.html?org=PF">Polícia Federal</a>
-        <a class="org-card org-link-card" href="orgs.html?org=E.B">Exército Brasileiro</a>
-        <a class="org-card org-link-card" href="orgs.html?org=PRF">Polícia Rodoviária Federal</a>
-        <a class="org-card org-link-card" href="orgs.html?org=Receita Federal">Receita Federal</a>
-        <a class="org-card org-link-card" href="orgs.html?org=CPTran">Unidade de Trânsito</a>
-        <a class="org-card org-link-card" href="orgs.html?org=GCM">GCM ABCD Paulista</a>
-        <a class="org-card org-link-card" href="orgs.html?org=Bombeiros">Corpo de Bombeiros PMESP</a>
-      </div>
-      <div class="center reveal">
-        <a class="btn ghost" href="assumir.html?tipo=orgs">QUERO ASSUMIR UMA ORG</a>
-      </div>
-    </section>
-
-    <section class="section" id="pmesp">
-      <div class="section-title reveal">
-        <p class="tag">Divisões PMESP</p>
-        <h2>Unidades e especializadas</h2>
-      </div>
-      <div class="org-grid reveal">
-        <div class="org-card">CPChq</div>
-        <div class="org-card">1º BPChq ROTA</div>
-        <div class="org-card">2º BPChq Anchieta</div>
-        <div class="org-card">3º BPChq Humaitá</div>
-        <div class="org-card">4º BPChq Operações Especiais</div>
-        <div class="org-card">CavPM / Regimento 9 de Julho</div>
-        <div class="org-card">COE</div>
-        <div class="org-card">GATE</div>
-        <div class="org-card">BAEP</div>
-        <div class="org-card">Força Tática</div>
-        <div class="org-card">ROCAM</div>
-        <div class="org-card">CPTran / Trânsito</div>
-        <div class="org-card">Polícia Rodoviária</div>
-        <div class="org-card">Polícia Ambiental</div>
-        <div class="org-card">Corpo de Bombeiros</div>
-      </div>
-    </section>
-
-
-
-    <section class="section" id="pcesp">
-      <div class="section-title reveal">
-        <p class="tag">Divisões PCESP</p>
-        <h2>Polícia Civil do Estado de São Paulo</h2>
-      </div>
-      <div class="org-grid reveal">
-        <div class="org-card">DEIC</div>
-        <div class="org-card">DHPP</div>
-        <div class="org-card">DENARC</div>
-        <div class="org-card">DECAP</div>
-        <div class="org-card">DEMACRO</div>
-        <div class="org-card">DIG / DISE</div>
-        <div class="org-card">Delegacia Seccional</div>
-        <div class="org-card">Delegacia de Homicídios</div>
-        <div class="org-card">Delegacia da Mulher</div>
-      </div>
-    </section>
-
-    <section class="section" id="pf-gcm">
-      <div class="section-title reveal">
-        <p class="tag">PF e GCM</p>
-        <h2>Divisões federais e municipais</h2>
-      </div>
-      <div class="org-grid reveal">
-        <div class="org-card">PF — DPF</div>
-        <div class="org-card">PF — COT</div>
-        <div class="org-card">PF — GPI</div>
-        <div class="org-card">PF — Polícia de Imigração</div>
-        <div class="org-card">PF — Repressão a Drogas</div>
-        <div class="org-card">PF — Crimes Cibernéticos</div>
-        <div class="org-card">GCM — ROMU</div>
-        <div class="org-card">GCM — Ronda Escolar</div>
-        <div class="org-card">GCM — Ambiental</div>
-        <div class="org-card">GCM — Patrulhamento Preventivo</div>
-        <div class="org-card">GCM — Ronda Cidadã</div>
-        <div class="org-card">GCM — Canil</div>
+        <a class="home-table-card" href="assumir.html?tipo=municoes">
+          <span class="badge">FAC</span>
+          <h3>FAC DE MUNIÇÃO</h3>
+          <p>Ver facções de munições disponíveis.</p>
+          <strong id="countMunicoes">Carregando...</strong>
+        </a>
       </div>
     </section>
 

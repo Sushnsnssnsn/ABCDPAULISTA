@@ -65,30 +65,23 @@ function statusClass(status){
 }
 
 async function carregarInicioTempoReal(){
-  if (!document.body || !document.getElementById('faccoes')) return;
+  const grid = document.getElementById('homeCategoryGrid');
+  if (!grid) return;
+
   try {
     const orgs = await api('/api/orgs');
     const grupos = agruparOrgs(orgs);
 
-    let box = document.getElementById('statusBancoBox');
-    if (!box) {
-      box = document.createElement('section');
-      box.id = 'statusBancoBox';
-      box.className = 'section';
-      box.innerHTML = `<div class="section-title reveal show"><p class="tag">Atualizado pelo painel staff</p><h2>Status em tempo real</h2></div><div class="grid two" id="statusBancoGrid"></div>`;
-      document.getElementById('faccoes').prepend(box);
-    }
+    const livres = (lista) => lista.filter(o => String(o.status || '').toLowerCase() === 'livre').length;
+    const total = (lista) => lista.length;
 
-    const grid = document.getElementById('statusBancoGrid');
-    const renderLista = (titulo, lista) => `
-      <article class="category reveal show">
-        <div class="category-head"><h3>${titulo}</h3><span class="badge">Banco</span></div>
-        <div class="items compact">
-          ${lista.map(o => `<div class="item ${statusClass(o.status)}"><span></span> ${o.tipo} - ${nomeVisivelOrg(o)} <small>(${o.status})</small></div>`).join('') || '<p class="empty">Nada cadastrado.</p>'}
-        </div>
-      </article>`;
+    const countOrgs = document.getElementById('countOrgs');
+    const countArmas = document.getElementById('countArmas');
+    const countMunicoes = document.getElementById('countMunicoes');
 
-    grid.innerHTML = renderLista('FAC Armas', grupos.armas) + renderLista('FAC Munições', grupos.municoes) + renderLista('Orgs Públicas', grupos.orgs);
+    if (countOrgs) countOrgs.textContent = `${livres(grupos.orgs)} livres de ${total(grupos.orgs)}`;
+    if (countArmas) countArmas.textContent = `${livres(grupos.armas)} livres de ${total(grupos.armas)}`;
+    if (countMunicoes) countMunicoes.textContent = `${livres(grupos.municoes)} livres de ${total(grupos.municoes)}`;
   } catch (err) {
     console.warn(err.message);
   }
