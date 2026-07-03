@@ -60,26 +60,46 @@
       </div>
 
       <div class="home-category-grid reveal" id="homeCategoryGrid">
-        <a class="home-table-card" href="assumir.html?tipo=orgs">
+        <button class="home-table-card home-open-card" type="button" data-home-cat="orgs">
           <span class="badge">ORG</span>
           <h3>ORG</h3>
-          <p>Ver órgãos públicos e escolher o tipo.</p>
+          <p>Clique para escolher PMESP, GCM, PCESP, PF, PRF ou E.B.</p>
           <strong id="countOrgs">Carregando...</strong>
-        </a>
+        </button>
 
-        <a class="home-table-card" href="assumir.html?tipo=armas">
+        <button class="home-table-card home-open-card" type="button" data-home-cat="armas">
           <span class="badge">FAC</span>
           <h3>FAC DE ARMA</h3>
-          <p>Ver facções de armas disponíveis.</p>
+          <p>Clique para abrir a lista de FAC de arma.</p>
           <strong id="countArmas">Carregando...</strong>
-        </a>
+        </button>
 
-        <a class="home-table-card" href="assumir.html?tipo=municoes">
+        <button class="home-table-card home-open-card" type="button" data-home-cat="municoes">
           <span class="badge">FAC</span>
           <h3>FAC DE MUNIÇÃO</h3>
-          <p>Ver facções de munições disponíveis.</p>
+          <p>Clique para abrir a lista de FAC de munição.</p>
           <strong id="countMunicoes">Carregando...</strong>
-        </a>
+        </button>
+      </div>
+
+      <div class="home-drilldown reveal" id="homeDrilldown" style="display:none;">
+        <div class="home-drill-head">
+          <div>
+            <p class="tag" id="homeDrillTag">Selecionar</p>
+            <h3 id="homeDrillTitle">Escolha uma opção</h3>
+          </div>
+          <a class="btn ghost" href="assumir.html">Ir para assumir</a>
+        </div>
+        <div class="home-option-grid" id="homeOptionGrid"></div>
+        <div class="home-division-screen" id="homeDivisionScreen" style="display:none;">
+          <div class="home-drill-head small">
+            <div>
+              <p class="tag">Status</p>
+              <h3 id="homeDivisionTitle">Divisões</h3>
+            </div>
+          </div>
+          <div class="home-status-grid" id="homeStatusGrid"></div>
+        </div>
       </div>
     </section>
 

@@ -70,7 +70,9 @@ async function carregarInicioTempoReal(){
 
   try {
     const orgs = await api('/api/orgs');
+    homeOrgsCache = orgs;
     const grupos = agruparOrgs(orgs);
+    if (homeGrupoAtual) abrirDrilldownHome(homeGrupoAtual);
 
     const livres = (lista) => lista.filter(o => String(o.status || '').toLowerCase() === 'livre').length;
     const total = (lista) => lista.length;
@@ -88,7 +90,7 @@ async function carregarInicioTempoReal(){
 }
 
 carregarInicioTempoReal();
-if (document.getElementById('faccoes')) setInterval(carregarInicioTempoReal, 5000);
+setInterval(carregarInicioTempoReal, 5000);
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('show'); });
@@ -98,4 +100,96 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 const header = document.querySelector('.header');
 window.addEventListener('scroll', () => {
   if (header) header.style.background = window.scrollY > 30 ? 'rgba(5,6,10,.78)' : 'rgba(5,6,10,.55)';
+});
+
+// Drilldown da tela inicial: 3 tabelas -> opções -> status das divisões
+let homeOrgsCache = [];
+let homeGrupoAtual = null;
+
+function tipoCategoriaHome(o){
+  const cat = String(o.categoria || '').toUpperCase();
+  const tipo = String(o.tipo || '').toUpperCase();
+  if (cat === 'FAC' && tipo.includes('ARMA')) return 'armas';
+  if (cat === 'FAC' && (tipo.includes('MUNI') || tipo.includes('MUNIÇÕES'))) return 'municoes';
+  return 'orgs';
+}
+
+function labelStatusHome(status){
+  return String(status || '').toLowerCase() === 'livre' ? 'Livre' : 'Ocupada/Privada';
+}
+
+function abrirDrilldownHome(cat){
+  homeGrupoAtual = cat;
+  const painel = document.getElementById('homeDrilldown');
+  const tag = document.getElementById('homeDrillTag');
+  const title = document.getElementById('homeDrillTitle');
+  const opts = document.getElementById('homeOptionGrid');
+  const screen = document.getElementById('homeDivisionScreen');
+  if (!painel || !opts) return;
+
+  painel.style.display = 'block';
+  screen.style.display = 'none';
+  opts.innerHTML = '';
+
+  document.querySelectorAll('.home-open-card').forEach(btn => btn.classList.toggle('active', btn.dataset.homeCat === cat));
+
+  if (cat === 'orgs') {
+    tag.textContent = 'ORG';
+    title.textContent = 'Escolha qual órgão/guarnição deseja ver';
+    const tipos = [...new Set(homeOrgsCache.filter(o => tipoCategoriaHome(o) === 'orgs').map(o => String(o.tipo || 'ORG')))].sort();
+    opts.innerHTML = tipos.map(tipo => `<button type="button" class="home-choice-btn" data-choice="${tipo}">${tipo}</button>`).join('') || '<p class="empty">Nenhuma ORG cadastrada.</p>';
+  }
+
+  if (cat === 'armas') {
+    tag.textContent = 'FAC';
+    title.textContent = 'Escolha para ver FAC de arma';
+    opts.innerHTML = `<button type="button" class="home-choice-btn" data-choice="FAC ARMAS">FAC DE ARMA</button>`;
+  }
+
+  if (cat === 'municoes') {
+    tag.textContent = 'FAC';
+    title.textContent = 'Escolha para ver FAC de munição';
+    opts.innerHTML = `<button type="button" class="home-choice-btn" data-choice="FAC MUNIÇÕES">FAC DE MUNIÇÃO</button>`;
+  }
+
+  painel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function mostrarDivisoesHome(choice){
+  const screen = document.getElementById('homeDivisionScreen');
+  const title = document.getElementById('homeDivisionTitle');
+  const grid = document.getElementById('homeStatusGrid');
+  if (!screen || !grid || !title) return;
+
+  let lista = [];
+  if (homeGrupoAtual === 'orgs') {
+    lista = homeOrgsCache.filter(o => tipoCategoriaHome(o) === 'orgs' && String(o.tipo || '') === choice);
+    title.textContent = `Divisões da ${choice}`;
+  } else if (homeGrupoAtual === 'armas') {
+    lista = homeOrgsCache.filter(o => tipoCategoriaHome(o) === 'armas');
+    title.textContent = 'FAC de Arma';
+  } else if (homeGrupoAtual === 'municoes') {
+    lista = homeOrgsCache.filter(o => tipoCategoriaHome(o) === 'municoes');
+    title.textContent = 'FAC de Munição';
+  }
+
+  grid.innerHTML = lista.map(o => {
+    const livre = String(o.status || '').toLowerCase() === 'livre';
+    return `<div class="home-status-card ${livre ? 'is-free' : 'is-busy'}">
+      <span></span>
+      <strong>${nomeVisivelOrg(o)}</strong>
+      <small>${labelStatusHome(o.status)}</small>
+    </div>`;
+  }).join('') || '<p class="empty">Nenhuma divisão cadastrada.</p>';
+
+  screen.style.display = 'block';
+  screen.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.addEventListener('click', (e) => {
+  const open = e.target.closest('.home-open-card');
+  if (open) abrirDrilldownHome(open.dataset.homeCat);
+
+  const choice = e.target.closest('.home-choice-btn');
+  if (choice) mostrarDivisoesHome(choice.dataset.choice);
 });
