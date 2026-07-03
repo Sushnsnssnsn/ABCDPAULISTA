@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Staff | Opção</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="loader" id="loader"><div class="loader-box"><span>STAFF</span><small>abrindo opção...</small></div></div>
+
+  <header class="header">
+    <a class="logo" href="index.html"><span>ABCD</span> Paulista</a>
+    <nav class="nav" id="nav">
+      <a href="index.html#inicio">Início</a>
+      <a href="index.html#faccoes">Facções</a>
+      <a href="orgs.html">Orgs</a>
+      <a href="painel-staff.html" class="staff-link">PAINEL-STAFF</a>
+      <a href="login.html" class="login-link">Login</a>
+      <button class="logout-btn" id="logoutBtn" type="button">Sair</button>
+    </nav>
+    <button class="menu" id="menu" aria-label="Abrir menu">☰</button>
+  </header>
+
+  <main>
+    <section class="section apply-page staff-page">
+      <div class="section-title reveal">
+        <p class="tag">Painel Staff</p>
+        <h2 id="staffOpcaoTitulo">Opção selecionada</h2>
+        <p class="desc small-center">Esta página mostra somente a opção que você clicou.</p>
+      </div>
+
+      <div class="staff-actions reveal mini-staff-actions">
+        <a href="painel-categoria.html?area=alterar&tipo=armas" class="staff-btn">Alterar vagas</a>
+        <a href="painel-categoria.html?area=formularios&tipo=armas" class="staff-btn">Formulários</a>
+        <a href="painel-categoria.html?area=controle" class="staff-btn">Controle geral</a>
+        <a href="painel-categoria.html?area=criar" class="staff-btn">Criar FAC/ORG</a>
+      </div>
+
+      <article class="category reveal staff-section" id="areaAlterar">
+        <div class="category-head"><h3>Alterar vagas</h3><span class="badge">Livre/Privada</span></div>
+        <div class="form-filter-tabs link-tabs">
+          <a href="painel-categoria.html?area=alterar&tipo=armas" data-area-filter="armas">FAC Armas</a>
+          <a href="painel-categoria.html?area=alterar&tipo=municoes" data-area-filter="municoes">FAC Munições</a>
+          <a href="painel-categoria.html?area=alterar&tipo=orgs" data-area-filter="orgs">ORGs</a>
+        </div>
+        <form class="form inline-form" id="livresForm">
+          <label>Categoria
+            <select id="livreCategoria">
+              <option value="armas">FAC Armas</option>
+              <option value="municoes">FAC Munições</option>
+              <option value="orgs">Órgão Público</option>
+            </select>
+          </label>
+          <label id="livreOrgaoBox">Órgão público
+            <select id="livreOrgao"></select>
+          </label>
+          <label>Selecione a FAC/ORG ou divisão
+            <select id="livreDivisao"></select>
+          </label>
+          <div class="choice-preview" id="choicePreview">Selecione uma opção acima.</div>
+          <div class="two-buttons">
+            <button class="btn primary full" type="submit" data-status="livre">ADICIONAR COMO LIVRE</button>
+            <button class="btn danger full" type="submit" data-status="privada">ADICIONAR COMO PRIVADA</button>
+          </div>
+        </form>
+        <div id="listasLivres" class="requests"></div>
+      </article>
+
+      <article class="category reveal staff-section" id="areaFormularios">
+        <div class="category-head"><h3>Formulários enviados</h3><span class="badge">Solicitações</span></div>
+        <div class="form-filter-tabs link-tabs">
+          <a href="painel-categoria.html?area=formularios&tipo=armas" data-area-filter="armas">FAC Armas</a>
+          <a href="painel-categoria.html?area=formularios&tipo=municoes" data-area-filter="municoes">FAC Munições</a>
+          <a href="painel-categoria.html?area=formularios&tipo=orgs" data-area-filter="orgs">ORGs</a>
+          <a href="painel-categoria.html?area=formularios&tipo=sem" data-area-filter="sem">Sem categoria</a>
+        </div>
+        <div id="formulariosBox" class="requests"></div>
+      </article>
+
+      <article class="category reveal staff-section" id="areaCriar">
+        <div class="category-head"><h3>Criar nova FAC/ORG</h3><span class="badge">Cadastro</span></div>
+        <form class="form inline-form" id="criarForm">
+          <label>Tipo que deseja criar
+            <select id="criarTipo">
+              <option value="fac_armas">Criar FAC de Armas</option>
+              <option value="fac_municoes">Criar FAC de Munição</option>
+              <option value="org_militar">Criar ORG Militar</option>
+              <option value="org_pacifica">Criar ORG Pacífica</option>
+            </select>
+          </label>
+          <label>Nome da FAC/ORG
+            <input type="text" id="criarNome" placeholder="Ex: NOVA FAC, SAMU, Defesa Civil" required>
+          </label>
+          <label id="criarDivisoesBox">Divisões da ORG
+            <small>Separe por vírgula. Ex: Canil, ROMU, Ronda Cidadã</small>
+            <textarea id="criarDivisoes" placeholder="Divisão 1, Divisão 2, Divisão 3"></textarea>
+          </label>
+          <button class="btn primary full" type="submit">CRIAR NO SISTEMA</button>
+          <p class="form-note" id="criarMsg"></p>
+        </form>
+      </article>
+
+      <article class="category reveal staff-section" id="areaControle">
+        <div class="category-head"><h3>Controle geral</h3><span class="badge">Resumo</span></div>
+        <div id="controleBox" class="org-grid"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer><p>ABCD Paulista © 2026 — Painel Staff</p></footer>
+  <script src="script.js"></script>
+  <script src="painel-categoria.js"></script>
+</body>
+</html>

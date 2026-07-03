@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | ABCD Paulista</title>
+  <title>Orgs | ABCD Paulista</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
 </head>
 <body>
   <div class="noise"></div>
-  <div class="loader" id="loader"><div class="loader-box"><span>ABCD</span><small>login...</small></div></div>
+  <div class="loader" id="loader"><div class="loader-box"><span>ORGS</span><small>carregando divisões...</small></div></div>
 
   <header class="header">
     <a class="logo" href="index.html"><span>ABCD</span> Paulista</a>
@@ -30,30 +30,25 @@
   <main>
     <section class="section apply-page">
       <div class="section-title reveal">
-        <p class="tag">Área de login</p>
-        <h2>Entrar no sistema</h2>
-        <p class="desc small-center">Acesso reservado para staff.</p>
+        <p class="tag">Órgãos públicos</p>
+        <h2 id="orgPageTitle">Escolha uma polícia/org</h2>
+        <p class="desc small-center">Clique em uma instituição para ver somente as divisões dela.</p>
       </div>
 
-      <article class="category login-card reveal">
+      <div class="form-filter-tabs org-selector-tabs reveal" id="orgButtons"></div>
+
+      <article class="category reveal">
         <div class="category-head">
-          <h3>Login com senha</h3>
-          <span class="badge">Staff</span>
+          <h3 id="orgSelectedTitle">Divisões</h3>
+          <span class="badge">Ao vivo</span>
         </div>
-        <form class="form" id="loginForm">
-          <label>Senha
-            <input type="password" id="senha" placeholder="Digite a senha" required>
-          </label>
-          <button class="btn primary full" type="submit">ENTRAR</button>
-          <button class="btn ghost full" type="button" id="sair">SAIR DA CONTA</button>
-          <p class="form-note" id="loginMsg"></p>
-        </form>
+        <div id="orgDivisoes" class="org-grid"></div>
       </article>
     </section>
   </main>
 
-  <footer><p>ABCD Paulista © 2026 — Login</p></footer>
+  <footer><p>ABCD Paulista © 2026 — Orgs públicas</p></footer>
   <script src="script.js"></script>
-  <script src="login.js"></script>
+  <script src="orgs.js"></script>
 </body>
 </html>

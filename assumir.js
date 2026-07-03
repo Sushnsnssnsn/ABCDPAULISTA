@@ -12,6 +12,14 @@ const formMsg = document.getElementById('formMsg');
 const tabs = document.querySelectorAll('.tab-btn');
 let todasOrgs = [];
 
+function nomeVisivelOrg(o){
+  const nome = String(o.nome || '');
+  const tipo = String(o.tipo || '').toUpperCase();
+  if (tipo === 'GCM' && nome.toUpperCase() === 'TRÂNSITO') return 'Ronda Cidadã';
+  if (tipo === 'GCM' && nome.toUpperCase() === 'TRANSITO') return 'Ronda Cidadã';
+  return nome;
+}
+
 function orgsLivres(){ return todasOrgs.filter(o => String(o.status).toLowerCase() === 'livre'); }
 function categoriaDaOrg(o){
   const cat = String(o.categoria || '').toUpperCase();
@@ -31,7 +39,7 @@ function preencherSelect(listaOrgs){
   listaOrgs.forEach(o => {
     const opt = document.createElement('option');
     opt.value = o.id;
-    opt.textContent = `${o.tipo} - ${o.nome}`;
+    opt.textContent = `${o.tipo} - ${nomeVisivelOrg(o)}`;
     orgSelect.appendChild(opt);
   });
 }
@@ -44,7 +52,7 @@ function renderDisponiveis(listaOrgs){
   listaOrgs.forEach(o => {
     const div = document.createElement('div');
     div.className = 'item free page-fade';
-    div.innerHTML = `<span></span> ${o.tipo} - ${o.nome}`;
+    div.innerHTML = `<span></span> ${o.tipo} - ${nomeVisivelOrg(o)}`;
     lista.appendChild(div);
   });
 }
@@ -57,9 +65,11 @@ function setTipo(tipo){
   orgMaeBox.style.display = atual === 'orgs' ? 'block' : 'none';
   if (atual === 'orgs') {
     preencherOrgsMae(listaTipo);
+    const orgParam = params.get('org');
+    if (orgParam && [...orgMaeSelect.options].some(opt => opt.value === orgParam)) orgMaeSelect.value = orgParam;
     const filtradas = listaTipo.filter(o => o.tipo === orgMaeSelect.value);
     preencherSelect(filtradas);
-    renderDisponiveis(listaTipo);
+    renderDisponiveis(filtradas);
   } else {
     preencherSelect(listaTipo);
     renderDisponiveis(listaTipo);
@@ -80,6 +90,7 @@ tipoSelect.addEventListener('change', () => setTipo(tipoSelect.value));
 orgMaeSelect.addEventListener('change', () => {
   const filtradas = porTipo('orgs').filter(o => o.tipo === orgMaeSelect.value);
   preencherSelect(filtradas);
+  renderDisponiveis(filtradas);
 });
 
 form.addEventListener('submit', async (e) => {

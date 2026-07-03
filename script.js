@@ -50,6 +50,14 @@ function agruparOrgs(orgs){
   }, { armas: [], municoes: [], orgs: [] });
 }
 
+function nomeVisivelOrg(o){
+  const nome = String(o.nome || '');
+  const tipo = String(o.tipo || '').toUpperCase();
+  if (tipo === 'GCM' && nome.toUpperCase() === 'TRÂNSITO') return 'Ronda Cidadã';
+  if (tipo === 'GCM' && nome.toUpperCase() === 'TRANSITO') return 'Ronda Cidadã';
+  return nome;
+}
+
 function statusClass(status){
   status = String(status || '').toLowerCase();
   if (status === 'livre') return 'free';
@@ -76,7 +84,7 @@ async function carregarInicioTempoReal(){
       <article class="category reveal show">
         <div class="category-head"><h3>${titulo}</h3><span class="badge">Banco</span></div>
         <div class="items compact">
-          ${lista.map(o => `<div class="item ${statusClass(o.status)}"><span></span> ${o.tipo} - ${o.nome} <small>(${o.status})</small></div>`).join('') || '<p class="empty">Nada cadastrado.</p>'}
+          ${lista.map(o => `<div class="item ${statusClass(o.status)}"><span></span> ${o.tipo} - ${nomeVisivelOrg(o)} <small>(${o.status})</small></div>`).join('') || '<p class="empty">Nada cadastrado.</p>'}
         </div>
       </article>`;
 
