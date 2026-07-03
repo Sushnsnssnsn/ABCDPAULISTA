@@ -83,21 +83,23 @@ function renderLivres(){
   });
 }
 
-function renderFormularios(){
-  const box = document.getElementById('formulariosBox');
-  box.innerHTML = '';
+function tituloCategoriaFormulario(f){
+  const org = f.orgs || {};
+  const cat = String(org.categoria || '').toUpperCase();
+  const tipo = String(org.tipo || '').toUpperCase();
 
-  if (!formularios.length){
-    box.innerHTML = '<p class="empty">Nenhum formulário enviado ainda.</p>';
-    return;
-  }
+  if (cat === 'FAC' && tipo.includes('ARMA')) return 'FAC DE ARMAS';
+  if (cat === 'FAC' && tipo.includes('MUNI')) return 'FAC DE MUNIÇÕES';
+  if (cat === 'ORG') return 'ORGs / ÓRGÃOS PÚBLICOS';
+  return 'SEM CATEGORIA';
+}
 
-  formularios.forEach((f) => {
-    const card = document.createElement('div');
-    card.className = 'request-card page-fade';
+function montarCardFormulario(f){
+  const orgTitulo = f.orgs ? `${f.orgs.tipo} - ${f.orgs.nome}` : 'ORG';
 
-    card.innerHTML = `
-      <strong>${f.orgs ? `${f.orgs.tipo} - ${f.orgs.nome}` : 'ORG'} — ${f.nome_grupo}</strong>
+  return `
+    <div class="request-card page-fade form-card">
+      <strong>${orgTitulo} — ${f.nome_grupo}</strong>
 
       <p><b>Status:</b> ${f.status} • <b>Membros:</b> ${f.quantidade_membros} • <b>Enviado:</b> ${new Date(f.created_at).toLocaleString('pt-BR')}</p>
 
@@ -115,9 +117,50 @@ function renderFormularios(){
         <button onclick="mudarStatusForm('${f.id}', 'pendente')">Pendente</button>
         <button class="danger" onclick="apagarFormulario('${f.id}')">Apagar</button>
       </div>
+    </div>
+  `;
+}
+
+function renderFormularios(){
+  const box = document.getElementById('formulariosBox');
+  box.innerHTML = '';
+
+  if (!formularios.length){
+    box.innerHTML = '<p class="empty">Nenhum formulário enviado ainda.</p>';
+    return;
+  }
+
+  const ordem = ['FAC DE ARMAS', 'FAC DE MUNIÇÕES', 'ORGs / ÓRGÃOS PÚBLICOS', 'SEM CATEGORIA'];
+  const grupos = {
+    'FAC DE ARMAS': [],
+    'FAC DE MUNIÇÕES': [],
+    'ORGs / ÓRGÃOS PÚBLICOS': [],
+    'SEM CATEGORIA': []
+  };
+
+  formularios.forEach(f => {
+    const titulo = tituloCategoriaFormulario(f);
+    grupos[titulo].push(f);
+  });
+
+  ordem.forEach(titulo => {
+    const lista = grupos[titulo];
+    if (!lista.length) return;
+
+    const section = document.createElement('div');
+    section.className = 'form-category-block page-fade';
+
+    section.innerHTML = `
+      <div class="form-category-head">
+        <h4>${titulo}</h4>
+        <span>${lista.length} formulário${lista.length > 1 ? 's' : ''}</span>
+      </div>
+      <div class="form-category-list">
+        ${lista.map(montarCardFormulario).join('')}
+      </div>
     `;
 
-    box.appendChild(card);
+    box.appendChild(section);
   });
 }
 
