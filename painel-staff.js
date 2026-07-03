@@ -2,6 +2,7 @@ if (!getLoginABCD()) location.href = 'login.html';
 
 let orgs = [];
 let formularios = [];
+let formularioCategoriaAtiva = null;
 
 const livreCategoria = document.getElementById('livreCategoria');
 const livreOrgaoBox = document.getElementById('livreOrgaoBox');
@@ -17,6 +18,44 @@ function categoriaDaOrg(o){
   if (cat === 'FAC' && tipo.includes('ARMA')) return 'armas';
   if (cat === 'FAC' && tipo.includes('MUNI')) return 'municoes';
   return 'orgs';
+}
+
+function categoriaDoFormulario(f){
+  if (!f || !f.orgs) return 'sem';
+  return categoriaDaOrg(f.orgs);
+}
+
+function nomeCategoriaFormulario(cat){
+  if (cat === 'armas') return 'FAC de Armas';
+  if (cat === 'municoes') return 'FAC de Munições';
+  if (cat === 'orgs') return 'ORGs / Órgãos Públicos';
+  return 'Sem categoria';
+}
+
+function renderAbasFormularios(){
+  const tabs = document.getElementById('formulariosTabs');
+  if (!tabs) return;
+
+  const total = {
+    armas: formularios.filter(f => categoriaDoFormulario(f) === 'armas').length,
+    municoes: formularios.filter(f => categoriaDoFormulario(f) === 'municoes').length,
+    orgs: formularios.filter(f => categoriaDoFormulario(f) === 'orgs').length,
+    sem: formularios.filter(f => categoriaDoFormulario(f) === 'sem').length
+  };
+
+  const botoes = [
+    ['armas', 'FAC Armas', total.armas],
+    ['municoes', 'FAC Munições', total.municoes],
+    ['orgs', 'ORGs', total.orgs],
+    ['sem', 'Sem categoria', total.sem]
+  ];
+
+  tabs.innerHTML = botoes.map(([valor, nome, quantidade]) => `
+    <button type="button" class="form-tab ${formularioCategoriaAtiva === valor ? 'active' : ''}" data-form-cat="${valor}">
+      <strong>${nome}</strong>
+      <span>${quantidade} formulário${quantidade === 1 ? '' : 's'}</span>
+    </button>
+  `).join('');
 }
 
 function selecionadas(){
@@ -83,23 +122,40 @@ function renderLivres(){
   });
 }
 
-function tituloCategoriaFormulario(f){
-  const org = f.orgs || {};
-  const cat = String(org.categoria || '').toUpperCase();
-  const tipo = String(org.tipo || '').toUpperCase();
+function renderFormularios(){
+  const box = document.getElementById('formulariosBox');
+  box.innerHTML = '';
 
-  if (cat === 'FAC' && tipo.includes('ARMA')) return 'FAC DE ARMAS';
-  if (cat === 'FAC' && tipo.includes('MUNI')) return 'FAC DE MUNIÇÕES';
-  if (cat === 'ORG') return 'ORGs / ÓRGÃOS PÚBLICOS';
-  return 'SEM CATEGORIA';
-}
+  renderAbasFormularios();
 
-function montarCardFormulario(f){
-  const orgTitulo = f.orgs ? `${f.orgs.tipo} - ${f.orgs.nome}` : 'ORG';
+  if (!formularios.length){
+    box.innerHTML = '<p class="empty">Nenhum formulário enviado ainda.</p>';
+    return;
+  }
 
-  return `
-    <div class="request-card page-fade form-card">
-      <strong>${orgTitulo} — ${f.nome_grupo}</strong>
+  if (!formularioCategoriaAtiva){
+    box.innerHTML = '<p class="empty">Escolha uma categoria acima para ver os formulários.</p>';
+    return;
+  }
+
+  const listaFiltrada = formularios.filter(f => categoriaDoFormulario(f) === formularioCategoriaAtiva);
+
+  if (!listaFiltrada.length){
+    box.innerHTML = `<p class="empty">Nenhum formulário em ${nomeCategoriaFormulario(formularioCategoriaAtiva)}.</p>`;
+    return;
+  }
+
+  const titulo = document.createElement('div');
+  titulo.className = 'form-category-title page-fade';
+  titulo.innerHTML = `<h4>${nomeCategoriaFormulario(formularioCategoriaAtiva)}</h4><span>${listaFiltrada.length} solicitação${listaFiltrada.length === 1 ? '' : 'es'}</span>`;
+  box.appendChild(titulo);
+
+  listaFiltrada.forEach((f) => {
+    const card = document.createElement('div');
+    card.className = 'request-card page-fade';
+
+    card.innerHTML = `
+      <strong>${f.orgs ? `${f.orgs.tipo} - ${f.orgs.nome}` : 'ORG'} — ${f.nome_grupo}</strong>
 
       <p><b>Status:</b> ${f.status} • <b>Membros:</b> ${f.quantidade_membros} • <b>Enviado:</b> ${new Date(f.created_at).toLocaleString('pt-BR')}</p>
 
@@ -117,50 +173,9 @@ function montarCardFormulario(f){
         <button onclick="mudarStatusForm('${f.id}', 'pendente')">Pendente</button>
         <button class="danger" onclick="apagarFormulario('${f.id}')">Apagar</button>
       </div>
-    </div>
-  `;
-}
-
-function renderFormularios(){
-  const box = document.getElementById('formulariosBox');
-  box.innerHTML = '';
-
-  if (!formularios.length){
-    box.innerHTML = '<p class="empty">Nenhum formulário enviado ainda.</p>';
-    return;
-  }
-
-  const ordem = ['FAC DE ARMAS', 'FAC DE MUNIÇÕES', 'ORGs / ÓRGÃOS PÚBLICOS', 'SEM CATEGORIA'];
-  const grupos = {
-    'FAC DE ARMAS': [],
-    'FAC DE MUNIÇÕES': [],
-    'ORGs / ÓRGÃOS PÚBLICOS': [],
-    'SEM CATEGORIA': []
-  };
-
-  formularios.forEach(f => {
-    const titulo = tituloCategoriaFormulario(f);
-    grupos[titulo].push(f);
-  });
-
-  ordem.forEach(titulo => {
-    const lista = grupos[titulo];
-    if (!lista.length) return;
-
-    const section = document.createElement('div');
-    section.className = 'form-category-block page-fade';
-
-    section.innerHTML = `
-      <div class="form-category-head">
-        <h4>${titulo}</h4>
-        <span>${lista.length} formulário${lista.length > 1 ? 's' : ''}</span>
-      </div>
-      <div class="form-category-list">
-        ${lista.map(montarCardFormulario).join('')}
-      </div>
     `;
 
-    box.appendChild(section);
+    box.appendChild(card);
   });
 }
 
@@ -309,7 +324,14 @@ document.getElementById('criarForm').addEventListener('submit', async e => {
     }
 
     e.target.reset();
-    criarDivisoesBox.style.display = 'none';
+    document.getElementById('formulariosTabs')?.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-form-cat]');
+  if (!btn) return;
+  formularioCategoriaAtiva = btn.dataset.formCat;
+  renderFormularios();
+});
+
+criarDivisoesBox.style.display = 'none';
     msg.textContent = 'Criado no sistema com sucesso.';
     msg.style.color = '#35ff7c';
 
@@ -318,6 +340,13 @@ document.getElementById('criarForm').addEventListener('submit', async e => {
     msg.textContent = err.message;
     msg.style.color = '#ff6969';
   }
+});
+
+document.getElementById('formulariosTabs')?.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-form-cat]');
+  if (!btn) return;
+  formularioCategoriaAtiva = btn.dataset.formCat;
+  renderFormularios();
 });
 
 criarDivisoesBox.style.display = 'none';
