@@ -37,72 +37,6 @@ async function api(path, options = {}){
   return json.data ?? json;
 }
 
-function agruparOrgs(orgs){
-  return orgs.reduce((acc, item) => {
-    const cat = String(item.categoria || '').toUpperCase();
-    const tipo = String(item.tipo || '').toUpperCase();
-    let grupo = 'orgs';
-    if (cat === 'FAC' && tipo.includes('ARMA')) grupo = 'armas';
-    else if (cat === 'FAC' && (tipo.includes('MUNI') || tipo.includes('MUNIÇÕES'))) grupo = 'municoes';
-    else grupo = 'orgs';
-    (acc[grupo] ||= []).push(item);
-    return acc;
-  }, { armas: [], municoes: [], orgs: [] });
-}
-
-function nomeVisivelOrg(o){
-  const nome = String(o.nome || '');
-  const tipo = String(o.tipo || '').toUpperCase();
-  if (tipo === 'GCM' && nome.toUpperCase() === 'TRÂNSITO') return 'Ronda Cidadã';
-  if (tipo === 'GCM' && nome.toUpperCase() === 'TRANSITO') return 'Ronda Cidadã';
-  return nome;
-}
-
-function statusClass(status){
-  status = String(status || '').toLowerCase();
-  if (status === 'livre') return 'free';
-  return 'busy';
-}
-
-async function carregarInicioTempoReal(){
-  const grid = document.getElementById('homeCategoryGrid');
-  if (!grid) return;
-
-  try {
-    const orgs = await api('/api/orgs');
-    homeOrgsCache = orgs;
-    const grupos = agruparOrgs(orgs);
-    if (homeGrupoAtual) abrirDrilldownHome(homeGrupoAtual);
-
-    const livres = (lista) => lista.filter(o => String(o.status || '').toLowerCase() === 'livre').length;
-    const total = (lista) => lista.length;
-
-    const countOrgs = document.getElementById('countOrgs');
-    const countArmas = document.getElementById('countArmas');
-    const countMunicoes = document.getElementById('countMunicoes');
-
-    if (countOrgs) countOrgs.textContent = `${livres(grupos.orgs)} livres de ${total(grupos.orgs)}`;
-    if (countArmas) countArmas.textContent = `${livres(grupos.armas)} livres de ${total(grupos.armas)}`;
-    if (countMunicoes) countMunicoes.textContent = `${livres(grupos.municoes)} livres de ${total(grupos.municoes)}`;
-  } catch (err) {
-    console.warn(err.message);
-  }
-}
-
-carregarInicioTempoReal();
-setInterval(carregarInicioTempoReal, 5000);
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('show'); });
-}, { threshold: 0.14 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-const header = document.querySelector('.header');
-window.addEventListener('scroll', () => {
-  if (header) header.style.background = window.scrollY > 30 ? 'rgba(5,6,10,.78)' : 'rgba(5,6,10,.55)';
-});
-
-// Drilldown da tela inicial: 3 tabelas -> opções -> status das divisões
 let homeOrgsCache = [];
 let homeGrupoAtual = null;
 
@@ -114,8 +48,31 @@ function tipoCategoriaHome(o){
   return 'orgs';
 }
 
+function agruparOrgs(orgs){
+  return orgs.reduce((acc, item) => {
+    const grupo = tipoCategoriaHome(item);
+    (acc[grupo] ||= []).push(item);
+    return acc;
+  }, { armas: [], municoes: [], orgs: [] });
+}
+
+function nomeVisivelOrg(o){
+  const nome = String(o.nome || '');
+  const tipo = String(o.tipo || '').toUpperCase();
+  const nomeUp = nome.toUpperCase();
+  if (tipo === 'GCM' && (nomeUp === 'TRÂNSITO' || nomeUp === 'TRANSITO')) return 'Ronda Cidadã';
+  return nome;
+}
+
 function labelStatusHome(status){
   return String(status || '').toLowerCase() === 'livre' ? 'Livre' : 'Ocupada/Privada';
+}
+
+function animarClique(el){
+  if (!el) return;
+  el.classList.remove('click-pop');
+  void el.offsetWidth;
+  el.classList.add('click-pop');
 }
 
 function abrirDrilldownHome(cat){
@@ -128,31 +85,62 @@ function abrirDrilldownHome(cat){
   if (!painel || !opts) return;
 
   painel.style.display = 'block';
-  screen.style.display = 'none';
+  painel.classList.remove('drop-active');
+  void painel.offsetWidth;
+  painel.classList.add('drop-active');
+
+  if (screen) screen.style.display = 'none';
   opts.innerHTML = '';
 
-  document.querySelectorAll('.home-open-card').forEach(btn => btn.classList.toggle('active', btn.dataset.homeCat === cat));
+  document.querySelectorAll('.home-open-card').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.homeCat === cat);
+  });
+
+  if (!homeOrgsCache.length) {
+    if (tag) tag.textContent = 'Carregando';
+    if (title) title.textContent = 'Buscando opções no sistema...';
+    opts.innerHTML = '<p class="empty">Carregando opções...</p>';
+    carregarInicioTempoReal().then(() => abrirDrilldownHome(cat));
+    return;
+  }
 
   if (cat === 'orgs') {
-    tag.textContent = 'ORG';
-    title.textContent = 'Escolha qual órgão/guarnição deseja ver';
-    const tipos = [...new Set(homeOrgsCache.filter(o => tipoCategoriaHome(o) === 'orgs').map(o => String(o.tipo || 'ORG')))].sort();
-    opts.innerHTML = tipos.map(tipo => `<button type="button" class="home-choice-btn" data-choice="${tipo}">${tipo}</button>`).join('') || '<p class="empty">Nenhuma ORG cadastrada.</p>';
+    if (tag) tag.textContent = 'ORG';
+    if (title) title.textContent = 'Escolha a guarnição/órgão';
+    const tipos = [...new Set(homeOrgsCache
+      .filter(o => tipoCategoriaHome(o) === 'orgs')
+      .map(o => String(o.tipo || 'ORG').trim())
+      .filter(Boolean))].sort();
+
+    opts.innerHTML = tipos.map(tipo => `
+      <button type="button" class="home-choice-btn option-animate" data-choice="${tipo}">
+        ${tipo}
+        <small>Ver divisões</small>
+      </button>
+    `).join('') || '<p class="empty">Nenhuma ORG cadastrada.</p>';
   }
 
   if (cat === 'armas') {
-    tag.textContent = 'FAC';
-    title.textContent = 'Escolha para ver FAC de arma';
-    opts.innerHTML = `<button type="button" class="home-choice-btn" data-choice="FAC ARMAS">FAC DE ARMA</button>`;
+    if (tag) tag.textContent = 'FAC';
+    if (title) title.textContent = 'Escolha a categoria';
+    opts.innerHTML = `
+      <button type="button" class="home-choice-btn option-animate" data-choice="FAC ARMAS">
+        FAC DE ARMA
+        <small>Ver favelas/status</small>
+      </button>`;
   }
 
   if (cat === 'municoes') {
-    tag.textContent = 'FAC';
-    title.textContent = 'Escolha para ver FAC de munição';
-    opts.innerHTML = `<button type="button" class="home-choice-btn" data-choice="FAC MUNIÇÕES">FAC DE MUNIÇÃO</button>`;
+    if (tag) tag.textContent = 'FAC';
+    if (title) title.textContent = 'Escolha a categoria';
+    opts.innerHTML = `
+      <button type="button" class="home-choice-btn option-animate" data-choice="FAC MUNIÇÕES">
+        FAC DE MUNIÇÃO
+        <small>Ver favelas/status</small>
+      </button>`;
   }
 
-  painel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => painel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
 }
 
 function mostrarDivisoesHome(choice){
@@ -173,9 +161,9 @@ function mostrarDivisoesHome(choice){
     title.textContent = 'FAC de Munição';
   }
 
-  grid.innerHTML = lista.map(o => {
+  grid.innerHTML = lista.map((o, i) => {
     const livre = String(o.status || '').toLowerCase() === 'livre';
-    return `<div class="home-status-card ${livre ? 'is-free' : 'is-busy'}">
+    return `<div class="home-status-card status-animate ${livre ? 'is-free' : 'is-busy'}" style="animation-delay:${i * 40}ms">
       <span></span>
       <strong>${nomeVisivelOrg(o)}</strong>
       <small>${labelStatusHome(o.status)}</small>
@@ -183,13 +171,71 @@ function mostrarDivisoesHome(choice){
   }).join('') || '<p class="empty">Nenhuma divisão cadastrada.</p>';
 
   screen.style.display = 'block';
-  screen.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  screen.classList.remove('drop-active');
+  void screen.offsetWidth;
+  screen.classList.add('drop-active');
+  setTimeout(() => screen.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+}
+
+async function carregarInicioTempoReal(){
+  const grid = document.getElementById('homeCategoryGrid');
+  if (!grid) return;
+
+  try {
+    const orgs = await api('/api/orgs');
+    homeOrgsCache = Array.isArray(orgs) ? orgs : [];
+    const grupos = agruparOrgs(homeOrgsCache);
+
+    const livres = (lista) => lista.filter(o => String(o.status || '').toLowerCase() === 'livre').length;
+    const total = (lista) => lista.length;
+
+    const countOrgs = document.getElementById('countOrgs');
+    const countArmas = document.getElementById('countArmas');
+    const countMunicoes = document.getElementById('countMunicoes');
+
+    if (countOrgs) countOrgs.textContent = `${livres(grupos.orgs)} livres de ${total(grupos.orgs)}`;
+    if (countArmas) countArmas.textContent = `${livres(grupos.armas)} livres de ${total(grupos.armas)}`;
+    if (countMunicoes) countMunicoes.textContent = `${livres(grupos.municoes)} livres de ${total(grupos.municoes)}`;
+
+    if (homeGrupoAtual) abrirDrilldownHome(homeGrupoAtual);
+  } catch (err) {
+    console.warn(err.message);
+    const counts = ['countOrgs','countArmas','countMunicoes'];
+    counts.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = 'Erro ao carregar'; });
+  }
 }
 
 document.addEventListener('click', (e) => {
   const open = e.target.closest('.home-open-card');
-  if (open) abrirDrilldownHome(open.dataset.homeCat);
+  if (open) {
+    animarClique(open);
+    abrirDrilldownHome(open.dataset.homeCat);
+  }
 
   const choice = e.target.closest('.home-choice-btn');
-  if (choice) mostrarDivisoesHome(choice.dataset.choice);
+  if (choice) {
+    animarClique(choice);
+    mostrarDivisoesHome(choice.dataset.choice);
+  }
+});
+
+// Animação extra para todos os sistemas de opções do site
+['change','click'].forEach(evt => {
+  document.addEventListener(evt, (e) => {
+    const el = e.target.closest('select, .tab-btn, .staff-btn, .btn, .mini-actions button, .org-link-card, .form-filter-tabs button, .org-selector-tabs button');
+    if (el) animarClique(el);
+  });
+});
+
+carregarInicioTempoReal();
+setInterval(carregarInicioTempoReal, 5000);
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('show'); });
+}, { threshold: 0.14 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+const header = document.querySelector('.header');
+window.addEventListener('scroll', () => {
+  if (header) header.style.background = window.scrollY > 30 ? 'rgba(5,6,10,.78)' : 'rgba(5,6,10,.55)';
 });
