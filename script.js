@@ -39,6 +39,7 @@ async function api(path, options = {}){
 
 let homeOrgsCache = [];
 let homeGrupoAtual = null;
+let homeOpcaoAtual = null;
 
 function tipoCategoriaHome(o){
   const cat = String(o.categoria || '').toUpperCase();
@@ -65,7 +66,10 @@ function nomeVisivelOrg(o){
 }
 
 function labelStatusHome(status){
-  return String(status || '').toLowerCase() === 'livre' ? 'Livre' : 'Ocupada/Privada';
+  const st = String(status || '').toLowerCase();
+  if (st === 'livre') return 'Livre';
+  if (st === 'privada') return 'Privada';
+  return 'Ocupada';
 }
 
 function animarClique(el){
@@ -75,90 +79,126 @@ function animarClique(el){
   el.classList.add('click-pop');
 }
 
-function abrirDrilldownHome(cat){
+function atualizarCardsHome(){
+  const grupos = agruparOrgs(homeOrgsCache);
+  const livres = (lista) => lista.filter(o => String(o.status || '').toLowerCase() === 'livre').length;
+  const total = (lista) => lista.length;
+  const countOrgs = document.getElementById('countOrgs');
+  const countArmas = document.getElementById('countArmas');
+  const countMunicoes = document.getElementById('countMunicoes');
+  if (countOrgs) countOrgs.textContent = `${livres(grupos.orgs)} livres de ${total(grupos.orgs)}`;
+  if (countArmas) countArmas.textContent = `${livres(grupos.armas)} livres de ${total(grupos.armas)}`;
+  if (countMunicoes) countMunicoes.textContent = `${livres(grupos.municoes)} livres de ${total(grupos.municoes)}`;
+}
+
+function abrirDrilldownHome(cat, animar = true){
   homeGrupoAtual = cat;
+  homeOpcaoAtual = null;
+
   const painel = document.getElementById('homeDrilldown');
-  const tag = document.getElementById('homeDrillTag');
-  const title = document.getElementById('homeDrillTitle');
-  const opts = document.getElementById('homeOptionGrid');
   const screen = document.getElementById('homeDivisionScreen');
-  if (!painel || !opts) return;
+  if (!painel) return;
 
   painel.style.display = 'block';
-  painel.classList.remove('drop-active');
-  void painel.offsetWidth;
-  painel.classList.add('drop-active');
-
   if (screen) screen.style.display = 'none';
-  opts.innerHTML = '';
+  renderOpcoesHome();
 
   document.querySelectorAll('.home-open-card').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.homeCat === cat);
   });
 
+  if (animar) {
+    painel.classList.remove('drop-active');
+    void painel.offsetWidth;
+    painel.classList.add('drop-active');
+    setTimeout(() => painel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  }
+}
+
+function renderOpcoesHome(){
+  const tag = document.getElementById('homeDrillTag');
+  const title = document.getElementById('homeDrillTitle');
+  const opts = document.getElementById('homeOptionGrid');
+  if (!opts || !homeGrupoAtual) return;
+
+  opts.innerHTML = '';
+
   if (!homeOrgsCache.length) {
     if (tag) tag.textContent = 'Carregando';
     if (title) title.textContent = 'Buscando opções no sistema...';
     opts.innerHTML = '<p class="empty">Carregando opções...</p>';
-    carregarInicioTempoReal().then(() => abrirDrilldownHome(cat));
     return;
   }
 
-  if (cat === 'orgs') {
+  if (homeGrupoAtual === 'orgs') {
     if (tag) tag.textContent = 'ORG';
-    if (title) title.textContent = 'Escolha a guarnição/órgão';
+    if (title) title.textContent = 'Escolha a guarnição';
     const tipos = [...new Set(homeOrgsCache
       .filter(o => tipoCategoriaHome(o) === 'orgs')
       .map(o => String(o.tipo || 'ORG').trim())
       .filter(Boolean))].sort();
 
     opts.innerHTML = tipos.map(tipo => `
-      <button type="button" class="home-choice-btn option-animate" data-choice="${tipo}">
+      <button type="button" class="home-choice-btn option-animate ${homeOpcaoAtual === tipo ? 'active' : ''}" data-choice="${tipo}">
         ${tipo}
-        <small>Ver divisões</small>
+        <small>Ver divisões e status</small>
       </button>
     `).join('') || '<p class="empty">Nenhuma ORG cadastrada.</p>';
+    return;
   }
 
-  if (cat === 'armas') {
-    if (tag) tag.textContent = 'FAC';
-    if (title) title.textContent = 'Escolha a categoria';
-    opts.innerHTML = `
-      <button type="button" class="home-choice-btn option-animate" data-choice="FAC ARMAS">
-        FAC DE ARMA
-        <small>Ver favelas/status</small>
-      </button>`;
+  const lista = homeOrgsCache
+    .filter(o => tipoCategoriaHome(o) === homeGrupoAtual)
+    .sort((a,b) => nomeVisivelOrg(a).localeCompare(nomeVisivelOrg(b), 'pt-BR'));
+
+  if (homeGrupoAtual === 'armas') {
+    if (tag) tag.textContent = 'FAC ARMAS';
+    if (title) title.textContent = 'Escolha a favela de arma';
   }
 
-  if (cat === 'municoes') {
-    if (tag) tag.textContent = 'FAC';
-    if (title) title.textContent = 'Escolha a categoria';
-    opts.innerHTML = `
-      <button type="button" class="home-choice-btn option-animate" data-choice="FAC MUNIÇÕES">
-        FAC DE MUNIÇÃO
-        <small>Ver favelas/status</small>
-      </button>`;
+  if (homeGrupoAtual === 'municoes') {
+    if (tag) tag.textContent = 'FAC MUNIÇÕES';
+    if (title) title.textContent = 'Escolha a favela de munição';
   }
 
-  setTimeout(() => painel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  opts.innerHTML = lista.map(o => `
+    <button type="button" class="home-choice-btn option-animate ${homeOpcaoAtual === o.id ? 'active' : ''}" data-choice="${o.id}">
+      ${nomeVisivelOrg(o)}
+      <small>${labelStatusHome(o.status)}</small>
+    </button>
+  `).join('') || '<p class="empty">Nenhuma opção cadastrada.</p>';
 }
 
-function mostrarDivisoesHome(choice){
+function mostrarDivisoesHome(choice, animar = true){
+  homeOpcaoAtual = choice;
   const screen = document.getElementById('homeDivisionScreen');
+  if (!screen) return;
+  screen.style.display = 'block';
+  renderStatusHome();
+
+  if (animar) {
+    screen.classList.remove('drop-active');
+    void screen.offsetWidth;
+    screen.classList.add('drop-active');
+    setTimeout(() => screen.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  }
+}
+
+function renderStatusHome(){
   const title = document.getElementById('homeDivisionTitle');
   const grid = document.getElementById('homeStatusGrid');
-  if (!screen || !grid || !title) return;
+  if (!grid || !title || !homeGrupoAtual || !homeOpcaoAtual) return;
 
   let lista = [];
+
   if (homeGrupoAtual === 'orgs') {
-    lista = homeOrgsCache.filter(o => tipoCategoriaHome(o) === 'orgs' && String(o.tipo || '') === choice);
-    title.textContent = `Divisões da ${choice}`;
-  } else if (homeGrupoAtual === 'armas') {
-    lista = homeOrgsCache.filter(o => tipoCategoriaHome(o) === 'armas');
-    title.textContent = 'FAC de Arma';
-  } else if (homeGrupoAtual === 'municoes') {
-    lista = homeOrgsCache.filter(o => tipoCategoriaHome(o) === 'municoes');
-    title.textContent = 'FAC de Munição';
+    lista = homeOrgsCache
+      .filter(o => tipoCategoriaHome(o) === 'orgs' && String(o.tipo || '') === homeOpcaoAtual)
+      .sort((a,b) => nomeVisivelOrg(a).localeCompare(nomeVisivelOrg(b), 'pt-BR'));
+    title.textContent = `Divisões da ${homeOpcaoAtual}`;
+  } else {
+    lista = homeOrgsCache.filter(o => String(o.id) === String(homeOpcaoAtual));
+    title.textContent = homeGrupoAtual === 'armas' ? 'FAC de Arma' : 'FAC de Munição';
   }
 
   grid.innerHTML = lista.map((o, i) => {
@@ -169,12 +209,6 @@ function mostrarDivisoesHome(choice){
       <small>${labelStatusHome(o.status)}</small>
     </div>`;
   }).join('') || '<p class="empty">Nenhuma divisão cadastrada.</p>';
-
-  screen.style.display = 'block';
-  screen.classList.remove('drop-active');
-  void screen.offsetWidth;
-  screen.classList.add('drop-active');
-  setTimeout(() => screen.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
 }
 
 async function carregarInicioTempoReal(){
@@ -184,24 +218,17 @@ async function carregarInicioTempoReal(){
   try {
     const orgs = await api('/api/orgs');
     homeOrgsCache = Array.isArray(orgs) ? orgs : [];
-    const grupos = agruparOrgs(homeOrgsCache);
+    atualizarCardsHome();
 
-    const livres = (lista) => lista.filter(o => String(o.status || '').toLowerCase() === 'livre').length;
-    const total = (lista) => lista.length;
-
-    const countOrgs = document.getElementById('countOrgs');
-    const countArmas = document.getElementById('countArmas');
-    const countMunicoes = document.getElementById('countMunicoes');
-
-    if (countOrgs) countOrgs.textContent = `${livres(grupos.orgs)} livres de ${total(grupos.orgs)}`;
-    if (countArmas) countArmas.textContent = `${livres(grupos.armas)} livres de ${total(grupos.armas)}`;
-    if (countMunicoes) countMunicoes.textContent = `${livres(grupos.municoes)} livres de ${total(grupos.municoes)}`;
-
-    if (homeGrupoAtual) abrirDrilldownHome(homeGrupoAtual);
+    // Atualiza o conteúdo aberto sem fechar a tabela e sem voltar para o início.
+    if (homeGrupoAtual) renderOpcoesHome();
+    if (homeOpcaoAtual) renderStatusHome();
   } catch (err) {
     console.warn(err.message);
-    const counts = ['countOrgs','countArmas','countMunicoes'];
-    counts.forEach(id => { const el = document.getElementById(id); if (el) el.textContent = 'Erro ao carregar'; });
+    ['countOrgs','countArmas','countMunicoes'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = 'Erro ao carregar';
+    });
   }
 }
 
@@ -210,6 +237,7 @@ document.addEventListener('click', (e) => {
   if (open) {
     animarClique(open);
     abrirDrilldownHome(open.dataset.homeCat);
+    return;
   }
 
   const choice = e.target.closest('.home-choice-btn');
